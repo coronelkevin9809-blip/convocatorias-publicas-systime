@@ -1,4 +1,6 @@
 from pathlib import Path
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 import streamlit as st
@@ -11,10 +13,9 @@ st.set_page_config(
 )
 
 DATA_PATH = Path(__file__).with_name("convocatorias_publicas.csv")
-CORTE_DATOS = "14 de octubre de 2026"
 
 
-@st.cache_data
+@st.cache_data(ttl=300)
 def cargar_convocatorias() -> pd.DataFrame:
     if not DATA_PATH.exists():
         return pd.DataFrame()
@@ -27,15 +28,23 @@ st.write(
     "y al sistema de postulación. La publicación es informativa y no constituye "
     "una evaluación de elegibilidad para una empresa específica."
 )
-st.warning(
-    f"Fuentes oficiales revisadas el {CORTE_DATOS}. La vigencia y los requisitos "
-    "pueden cambiar; confirma siempre en la convocatoria oficial antes de postular."
-)
-
 df = cargar_convocatorias()
 if df.empty:
     st.info("Aún no hay oportunidades cargadas en la versión pública.")
 else:
+    if "Última revisión" in df.columns:
+        revisiones = pd.to_datetime(df["Última revisión"], errors="coerce")
+        ultima_revision = revisiones.max()
+        if pd.notna(ultima_revision):
+            st.caption(f"Fuentes revisadas por última vez: {ultima_revision:%d/%m/%Y}.")
+            hoy = datetime.now(ZoneInfo("America/Bogota")).date()
+            if (hoy - ultima_revision.date()).days > 2:
+                st.warning("La búsqueda automática no se ha actualizado en más de 48 horas. Confirma la vigencia en la fuente oficial antes de postular.")
+                if "Estado" in df.columns:
+                    df.loc[:, "Estado"] = "Pendiente de revalidar — última revisión antigua"
+        else:
+            st.warning("No se encontró la fecha de la última revisión. Confirma la vigencia en la fuente oficial.")
+    st.caption("La vigencia y los requisitos pueden cambiar. Confirma siempre las bases oficiales antes de postular.")
     busqueda = st.text_input("Buscar por convocatoria o entidad")
     vista = df.copy()
     if busqueda:

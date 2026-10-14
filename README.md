@@ -13,6 +13,8 @@ python -m streamlit run dashboard_app.py
 
 Despliega `dashboard_app.py` desde este repositorio en Streamlit Community Cloud. La aplicación muestra únicamente los campos seleccionados en `convocatorias_publicas.csv`.
 
-## Actualización
+## Actualización automática
 
-El listado tiene un corte informativo indicado dentro de la aplicación. Revisa fechas, bases y disponibilidad del portal en las fuentes oficiales antes de postular. La convocatoria incluida puede requerir aliados y cumplir requisitos territoriales; su presencia no confirma la elegibilidad de SysTime. No cargues credenciales, el Data Room institucional ni reportes completos en este repositorio.
+El agente de búsqueda actualiza `convocatorias_publicas.csv` después de cada escaneo satisfactorio. Solo envía oportunidades con estado abierto explícito, fecha vigente y enlace directo de postulación accesible. El dashboard refresca sus datos periódicamente y avisa cuando el feed lleva más de 48 horas sin revisión.
+
+La lista es informativa. Revisa las bases y la disponibilidad del portal oficial antes de postular; la presencia de una oportunidad no confirma la elegibilidad de SysTime. Este repositorio no debe contener credenciales, el Data Room institucional, borradores ni reportes completos.
